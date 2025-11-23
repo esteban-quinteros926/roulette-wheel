@@ -1,0 +1,302 @@
+/* --- 1. RESET GLOBAL --- */
+/* Crucial para que los bordes y rellenos no afecten el cálculo del centro */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* --- 2. CONTENEDOR PRINCIPAL --- */
+.ruleta-container {
+  display: flex;
+  flex-direction: row; /* Lado a lado en escritorio */
+  width: 100vw;
+  height: 100vh;
+  background-color: #f4f4f9;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- 3. SECCIÓN DE LA RULETA (IZQUIERDA) --- */
+.wheel-section {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column; /* Apila mensaje y ruleta verticalmente */
+  justify-content: flex-start; /* Empieza desde arriba */
+  align-items: center;
+  padding-top: 5vh; /* Espacio superior */
+  padding-bottom: 2vh;
+  overflow: hidden;
+}
+
+/* --- 4. MENSAJE GANADOR --- */
+.winner-display {
+  background-color: #d4edda;
+  color: #155724;
+  border: 2px solid #c3e6cb;
+  padding: 10px 25px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: clamp(1.2rem, 3vmin, 2rem);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  animation: popIn 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  text-align: center;
+  z-index: 50;
+  
+  /* Empuja la ruleta hacia abajo para no solaparse */
+  margin-bottom: 4vh; 
+  min-height: 1.5em;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Botón "Ocultar" dentro del mensaje */
+.hide-winner-btn {
+  background-color: #155724;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.hide-winner-btn:hover {
+  background-color: #0f3e1a;
+}
+
+/* --- 5. CONTENEDOR DE LA RUEDA --- */
+.wheel-wrapper {
+  position: relative;
+  /* Tamaño de la ruleta */
+  width: 65vmin;
+  height: 65vmin;
+  max-width: 90%;
+  max-height: 65vh;
+  
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.1s;
+  flex-shrink: 0; /* Evita que se aplaste si hay poco espacio */
+}
+
+.wheel-wrapper:active {
+  transform: scale(0.98);
+}
+
+/* Flecha indicadora */
+.wheel-pointer {
+  position: absolute;
+  top: -3%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  width: 0;
+  height: 0;
+  border-left: 2.5vmin solid transparent;
+  border-right: 2.5vmin solid transparent;
+  border-top: 5vmin solid #e74c3c;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
+}
+
+/* Círculo giratorio */
+.wheel {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  /* Borde blanco hacia adentro */
+  border: 1vmin solid #fff; 
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  overflow: hidden;
+  position: relative;
+  transition: transform 3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  z-index: 1;
+}
+
+/* Textos dentro de la ruleta */
+.wheel-item {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 50%;
+  width: 0;
+  transform-origin: bottom;
+  z-index: 1;
+}
+
+.wheel-text {
+  position: absolute;
+  top: 4vmin;
+  left: 0;
+  transform: translateX(-50%);
+  font-weight: bold;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: clamp(12px, 2.5vmin, 24px);
+  white-space: nowrap;
+}
+
+/* --- 6. BOTÓN CENTRAL (CORREGIDO) --- */
+.spin-btn {
+  position: absolute;
+  
+  /* CENTRADO MATEMÁTICO EXACTO: 50% - Mitad del ancho (25px) */
+  top: calc(50% - 25px);
+  left: calc(50% - 25px);
+  
+  /* Tamaño fijo pequeño */
+  width: 50px;
+  height: 50px;
+  
+  border-radius: 50%;
+  background: white;
+  border: 3px solid #e0e0e0;
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  
+  font-weight: bold;
+  font-size: 10px;
+  color: #333;
+  z-index: 20; /* Por encima de todo */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.reset-btn {
+  margin-top: 30px; /* Separación de la ruleta */
+  padding: 10px 24px;
+  background-color: #3498db; /* Azul */
+  color: white;
+  border: none;
+  border-radius: 30px; /* Bordes redondeados modernos */
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reset-btn:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+}
+
+.reset-btn:active {
+  transform: translateY(0);
+}
+
+/* --- 7. PANEL LATERAL (DERECHA) --- */
+.sidebar {
+  width: 350px;
+  background: white;
+  box-shadow: -5px 0 15px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  padding: 25px;
+  z-index: 20;
+  border-left: 1px solid #eee;
+}
+
+.controls-title { margin-top: 0; margin-bottom: 20px; color: #333; font-size: 1.5rem; text-align: center; }
+
+.input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+.input-group input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+.add-btn { padding: 0 20px; background-color: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: background 0.2s; }
+.add-btn:hover { background-color: #2980b9; }
+
+.items-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+  flex: 1;
+  border-top: 1px solid #eee;
+}
+
+/* Fila de la lista */
+.list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 10px;
+  border-bottom: 1px solid #eee;
+  color: #444;
+  font-size: 0.95rem;
+  transition: background 0.2s;
+  cursor: pointer; /* Click para activar/desactivar */
+}
+
+.list-item:hover { background-color: #f9f9f9; }
+
+/* Estado Oculto (Desactivado) */
+.list-item.disabled {
+  background-color: #f8f9fa;
+  color: #aaa;
+}
+.list-item.disabled span {
+  text-decoration: line-through;
+}
+
+.item-text { flex: 1; }
+
+.delete-btn {
+  background: #ffecec;
+  border: none;
+  color: #e74c3c;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 5px;
+  margin-left: 10px;
+  font-size: 0.8rem;
+}
+.delete-btn:hover { background-color: #ffdbdb; }
+
+.limit-msg { text-align: center; font-size: 0.85rem; color: #999; margin-top: 15px; }
+
+/* --- 8. RESPONSIVE (MÓVILES) --- */
+@media (max-width: 900px) {
+  .ruleta-container {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+  .wheel-section {
+    height: auto;
+    min-height: 60vh;
+    width: 100%;
+    padding: 40px 0;
+  }
+  /* En móvil, aseguramos que la rueda no sea excesivamente grande */
+  .wheel-wrapper { width: 70vmin; height: 70vmin; }
+  
+  .sidebar { width: 100%; height: auto; min-height: 40vh; }
+}
