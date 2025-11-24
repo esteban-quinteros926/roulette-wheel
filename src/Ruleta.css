@@ -88,10 +88,9 @@ body, html {
 .wheel-wrapper {
   position: relative;
   /* Tamaño de la ruleta */
-  width: 65vmin;
-  height: 65vmin;
-  max-width: 90%;
-  max-height: 65vh;
+  width: 80vmin;
+  height: 80vmin;
+  
   
   cursor: pointer;
   user-select: none;

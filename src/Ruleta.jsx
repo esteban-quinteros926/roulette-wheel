@@ -75,6 +75,10 @@ export default function Ruleta() {
     setWinner(null);
   };
 
+  const closeWinner = () => {
+    setWinner(null);
+  };
+
   // Función nueva para reactivar todo lo que esté oculto
   const unhideAll = () => {
     setItems(prevItems => prevItems.map(item => ({ ...item, enabled: true })));
@@ -137,6 +141,13 @@ export default function Ruleta() {
               title="Ocultar de la ruleta temporalmente"
             >
               Ocultar
+            </button>
+            <button
+              className='close-winner-btn'
+              onClick={closeWinner}
+              title='Cerrar popup ganador'
+            >
+              Cerrar
             </button>
           </div>
         )}
