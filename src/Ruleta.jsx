@@ -140,7 +140,7 @@ export default function Ruleta() {
               onClick={hideCurrentWinner}
               title="Ocultar de la ruleta temporalmente"
             >
-              Ocultar
+              Ocultar <br></br> elemento
             </button>
             <button
               className='close-winner-btn'

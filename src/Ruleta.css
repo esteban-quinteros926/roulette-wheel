@@ -81,17 +81,33 @@ body, html {
 }
 
 .hide-winner-btn:hover {
-  background-color: #0f3e1a;
+  background-color: #0f3d1a;
 }
 
+.close-winner-btn {
+  background-color: rgb(185, 66, 66);
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.close-winner-btn:hover{
+  background-color: rgb(151, 56, 56);
+}
 /* --- 5. CONTENEDOR DE LA RUEDA --- */
 .wheel-wrapper {
   position: relative;
   /* Tamaño de la ruleta */
   width: 80vmin;
   height: 80vmin;
-  
-  
   cursor: pointer;
   user-select: none;
   transition: transform 0.1s;
