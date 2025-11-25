@@ -15,7 +15,6 @@ const DEFAULT_ITEMS = [
 ];
 
 export default function Ruleta() {
-  // 1. ESTADO CON PERSISTENCIA (LocalStorage)
   const [items, setItems] = useState(() => {
     try {
       const savedItems = localStorage.getItem('ruletaItems');
@@ -32,17 +31,12 @@ export default function Ruleta() {
   
   const currentRotation = useRef(0);
 
-  // Guardar cambios automáticamente
   useEffect(() => {
     localStorage.setItem('ruletaItems', JSON.stringify(items));
   }, [items]);
 
   // --- LÓGICA DEL JUEGO ---
-  
-  // Solo los items "enabled" aparecen en la rueda
   const activeItems = items.filter(item => item.enabled);
-  
-  // Variable para saber si hay items ocultos (para mostrar el botón de reactivar)
   const hasHiddenItems = items.some(item => !item.enabled);
 
   const addItem = (e) => {
@@ -79,7 +73,6 @@ export default function Ruleta() {
     setWinner(null);
   };
 
-  // Función nueva para reactivar todo lo que esté oculto
   const unhideAll = () => {
     setItems(prevItems => prevItems.map(item => ({ ...item, enabled: true })));
   };
@@ -110,19 +103,27 @@ export default function Ruleta() {
     }, 3000);
   };
 
-  const getWheelBackground = () => {
-    if (activeItems.length === 0) return '#ccc';
-    const percent = 100 / activeItems.length;
-    let gradient = 'conic-gradient(';
-    
-    activeItems.forEach((_, index) => {
-      const color = COLORS[index % COLORS.length];
-      const start = percent * index;
-      const end = percent * (index + 1);
-      gradient += `${color} ${start}% ${end}%, `;
-    });
-    
-    return gradient.slice(0, -2) + ')';
+  // --- MATEMÁTICAS SVG (NUEVO) ---
+  const getCoordinatesForPercent = (percent) => {
+    const x = Math.cos(2 * Math.PI * percent);
+    const y = Math.sin(2 * Math.PI * percent);
+    return [x, y];
+  };
+
+  const makeSlicePath = (percent, index, total) => {
+    const startPercent = index / total;
+    const endPercent = (index + 1) / total;
+
+    // Ajustamos -0.25 para empezar arriba (12 en punto)
+    const [startX, startY] = getCoordinatesForPercent(startPercent - 0.25);
+    const [endX, endY] = getCoordinatesForPercent(endPercent - 0.25);
+
+    if (total === 1) {
+      return "M 1 0 A 1 1 0 1 1 -1 0 A 1 1 0 1 1 1 0"; 
+    }
+
+    const largeArcFlag = endPercent - startPercent > 0.5 ? 1 : 0;
+    return `M 0 0 L ${startX} ${startY} A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY} L 0 0`;
   };
 
   return (
@@ -131,7 +132,6 @@ export default function Ruleta() {
       {/* --- SECCIÓN IZQUIERDA: RULETA --- */}
       <div className="wheel-section">
         
-        {/* Mensaje Ganador */}
         {winner && !isSpinning && (
           <div className="winner-display">
             <span>🎉 {winner} 🎉</span>
@@ -140,7 +140,7 @@ export default function Ruleta() {
               onClick={hideCurrentWinner}
               title="Ocultar de la ruleta temporalmente"
             >
-              Ocultar <br></br> elemento
+              Ocultar <br/> elemento
             </button>
             <button
               className='close-winner-btn'
@@ -152,16 +152,25 @@ export default function Ruleta() {
           </div>
         )}
 
-        {/* La Ruleta */}
         <div className="wheel-wrapper" onClick={spinWheel}>
           <div className="wheel-pointer"></div>
+          
           <div 
             className="wheel"
-            style={{ 
-              background: getWheelBackground(),
-              transform: `rotate(${rotation}deg)`
-            }}
+            style={{ transform: `rotate(${rotation}deg)` }}
           >
+            {/* NUEVO: FONDO SVG */}
+            <svg viewBox="-1 -1 2 2" className="wheel-svg">
+              {activeItems.map((_, index) => (
+                <path
+                  key={index}
+                  d={makeSlicePath(100, index, activeItems.length)}
+                  fill={COLORS[index % COLORS.length]}
+                />
+              ))}
+            </svg>
+
+            {/* TEXTOS */}
             {activeItems.map((item, index) => {
               const angle = (360 / activeItems.length);
               const itemRotation = angle * index + (angle / 2);
@@ -179,11 +188,9 @@ export default function Ruleta() {
               );
             })}
           </div>
-          <div className="spin-btn">
-          </div>
+          <div className="spin-btn"></div>
         </div>
 
-        {/* Botón para Reactivar Ocultos (Solo si hay ocultos y no está girando) */}
         {hasHiddenItems && !isSpinning && (
           <button className="reset-btn" onClick={unhideAll}>
             🔄 Reactivar ocultos ({items.filter(i => !i.enabled).length})
@@ -215,9 +222,7 @@ export default function Ruleta() {
               onClick={() => toggleItem(index)}
               title="Clic para activar/desactivar"
             >
-              <span className="item-text">
-                {item.text}
-              </span>
+              <span className="item-text">{item.text}</span>
               <button 
                 onClick={(e) => deleteItem(e, index)} 
                 className="delete-btn"

@@ -1,5 +1,4 @@
 /* --- 1. RESET GLOBAL --- */
-/* Crucial para que los bordes y rellenos no afecten el cálculo del centro */
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -15,7 +14,7 @@ body, html {
 /* --- 2. CONTENEDOR PRINCIPAL --- */
 .ruleta-container {
   display: flex;
-  flex-direction: row; /* Lado a lado en escritorio */
+  flex-direction: row;
   width: 100vw;
   height: 100vh;
   background-color: #f4f4f9;
@@ -27,10 +26,10 @@ body, html {
   flex: 1;
   position: relative;
   display: flex;
-  flex-direction: column; /* Apila mensaje y ruleta verticalmente */
-  justify-content: flex-start; /* Empieza desde arriba */
+  flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
-  padding-top: 5vh; /* Espacio superior */
+  padding-top: 5vh;
   padding-bottom: 2vh;
   overflow: hidden;
 }
@@ -48,11 +47,8 @@ body, html {
   animation: popIn 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
   text-align: center;
   z-index: 50;
-  
-  /* Empuja la ruleta hacia abajo para no solaparse */
   margin-bottom: 4vh; 
   min-height: 1.5em;
-  
   display: flex;
   align-items: center;
   justify-content: center;
@@ -64,7 +60,6 @@ body, html {
   100% { transform: scale(1); opacity: 1; }
 }
 
-/* Botón "Ocultar" dentro del mensaje */
 .hide-winner-btn {
   background-color: #155724;
   color: white;
@@ -102,23 +97,23 @@ body, html {
 .close-winner-btn:hover{
   background-color: rgb(151, 56, 56);
 }
+
 /* --- 5. CONTENEDOR DE LA RUEDA --- */
 .wheel-wrapper {
   position: relative;
-  /* Tamaño de la ruleta */
   width: 80vmin;
   height: 80vmin;
   cursor: pointer;
   user-select: none;
   transition: transform 0.1s;
-  flex-shrink: 0; /* Evita que se aplaste si hay poco espacio */
+  flex-shrink: 0;
 }
 
 .wheel-wrapper:active {
   transform: scale(0.98);
 }
 
-/* Flecha indicadora */
+
 .wheel-pointer {
   position: absolute;
   top: -3%;
@@ -133,13 +128,12 @@ body, html {
   filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
 }
 
-/* Círculo giratorio */
+/* Círculo giratorio (MODIFICADO para SVG) */
 .wheel {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  /* Borde blanco hacia adentro */
-  border: 1vmin solid #fff; 
+  /* Eliminamos el borde de aquí, ahora lo lleva el SVG */
   box-shadow: 0 10px 20px rgba(0,0,0,0.2);
   overflow: hidden;
   position: relative;
@@ -147,7 +141,18 @@ body, html {
   z-index: 1;
 }
 
-/* Textos dentro de la ruleta */
+/* NUEVO: Estilo para el SVG de fondo */
+.wheel-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 0.5vmin solid #fff; /* El borde blanco exterior va aquí */
+  box-sizing: border-box;
+}
+
 .wheel-item {
   position: absolute;
   top: 0;
@@ -168,45 +173,38 @@ body, html {
   text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  font-size: clamp(12px, 2.5vmin, 24px);
+  font-size: clamp(12px, 1.75vmin, 24px);
   white-space: nowrap;
 }
 
-/* --- 6. BOTÓN CENTRAL (CORREGIDO) --- */
+/* --- 6. BOTÓN CENTRAL --- */
 .spin-btn {
   position: absolute;
-  
-  /* CENTRADO MATEMÁTICO EXACTO: 50% - Mitad del ancho (25px) */
   top: calc(50% - 25px);
   left: calc(50% - 25px);
-  
-  /* Tamaño fijo pequeño */
   width: 50px;
   height: 50px;
-  
   border-radius: 50%;
   background: white;
   border: 3px solid #e0e0e0;
-  
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 0;
-  
   font-weight: bold;
   font-size: 10px;
   color: #333;
-  z-index: 20; /* Por encima de todo */
+  z-index: 20;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
 .reset-btn {
-  margin-top: 30px; /* Separación de la ruleta */
+  margin-top: 30px;
   padding: 10px 24px;
-  background-color: #3498db; /* Azul */
+  background-color: #3498db;
   color: white;
   border: none;
-  border-radius: 30px; /* Bordes redondeados modernos */
+  border-radius: 30px;
   font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
@@ -227,7 +225,7 @@ body, html {
   transform: translateY(0);
 }
 
-/* --- 7. PANEL LATERAL (DERECHA) --- */
+/* --- 7. PANEL LATERAL --- */
 .sidebar {
   width: 350px;
   background: white;
@@ -255,7 +253,6 @@ body, html {
   border-top: 1px solid #eee;
 }
 
-/* Fila de la lista */
 .list-item {
   display: flex;
   justify-content: space-between;
@@ -265,12 +262,11 @@ body, html {
   color: #444;
   font-size: 0.95rem;
   transition: background 0.2s;
-  cursor: pointer; /* Click para activar/desactivar */
+  cursor: pointer;
 }
 
 .list-item:hover { background-color: #f9f9f9; }
 
-/* Estado Oculto (Desactivado) */
 .list-item.disabled {
   background-color: #f8f9fa;
   color: #aaa;
@@ -296,7 +292,7 @@ body, html {
 
 .limit-msg { text-align: center; font-size: 0.85rem; color: #999; margin-top: 15px; }
 
-/* --- 8. RESPONSIVE (MÓVILES) --- */
+/* --- 8. RESPONSIVE --- */
 @media (max-width: 900px) {
   .ruleta-container {
     flex-direction: column;
@@ -310,8 +306,6 @@ body, html {
     width: 100%;
     padding: 40px 0;
   }
-  /* En móvil, aseguramos que la rueda no sea excesivamente grande */
   .wheel-wrapper { width: 70vmin; height: 70vmin; }
-  
   .sidebar { width: 100%; height: auto; min-height: 40vh; }
 }
