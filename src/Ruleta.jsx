@@ -14,7 +14,62 @@ const DEFAULT_ITEMS = [
   { text: 'Elemento 6', enabled: true }
 ];
 
+// Diccionario de traducciones
+const TRANSLATIONS = {
+  es: {
+    winnerTitle: "🎉 ¡Ganador!",
+    hideItem: "Ocultar \n elemento",
+    close: "Cerrar",
+    spinAlert: "Necesitas al menos 2 elementos activos para girar.",
+    resetBtn: "🔄 Reactivar ocultos",
+    optionsTitle: "Opciones",
+    placeholder: "Nueva opción...",
+    deleteBtn: "Eliminar",
+    limitMsg: "activos / total",
+    toggleTitle: "Clic para activar/desactivar",
+    deleteTitle: "Eliminar definitivamente",
+    hideWinnerTitle: "Ocultar de la ruleta temporalmente",
+    closeWinnerTitle: "Cerrar popup ganador",
+    themeLabelDark: "Cambiar a modo claro",
+    themeLabelLight: "Cambiar a modo oscuro",
+    langLabel: "Cambiar idioma"
+  },
+  en: {
+    winnerTitle: "🎉 Winner!",
+    hideItem: "Hide \n element",
+    close: "Close",
+    spinAlert: "You need at least 2 active items to spin.",
+    resetBtn: "🔄 Reactivate hidden",
+    optionsTitle: "Options",
+    placeholder: "New option...",
+    deleteBtn: "Delete",
+    limitMsg: "active / total",
+    toggleTitle: "Click to toggle",
+    deleteTitle: "Delete permanently",
+    hideWinnerTitle: "Hide from wheel temporarily",
+    closeWinnerTitle: "Close winner popup",
+    themeLabelDark: "Switch to light mode",
+    themeLabelLight: "Switch to dark mode",
+    langLabel: "Switch language"
+  }
+};
+
 export default function Ruleta() {
+  // --- TEMA ---
+  const [theme, setTheme] = useState('dark');
+
+  // --- IDIOMA (Detectar sistema) ---
+  const [lang, setLang] = useState(() => {
+    // Si el navegador empieza con 'es' (es-ES, es-MX), usa español, sino inglés
+    if (typeof navigator !== 'undefined' && navigator.language) {
+      return navigator.language.startsWith('es') ? 'es' : 'en';
+    }
+    return 'es';
+  });
+
+  // Shortcut para acceder a los textos
+  const t = TRANSLATIONS[lang];
+
   const [items, setItems] = useState(() => {
     try {
       const savedItems = localStorage.getItem('ruletaItems');
@@ -79,7 +134,7 @@ export default function Ruleta() {
 
   const spinWheel = () => {
     if (isSpinning || activeItems.length < 2) {
-      if (activeItems.length < 2) alert("Necesitas al menos 2 elementos activos para girar.");
+      if (activeItems.length < 2) alert(t.spinAlert);
       return;
     }
 
@@ -103,7 +158,7 @@ export default function Ruleta() {
     }, 3000);
   };
 
-  // --- MATEMÁTICAS SVG (NUEVO) ---
+  // --- MATEMÁTICAS SVG ---
   const getCoordinatesForPercent = (percent) => {
     const x = Math.cos(2 * Math.PI * percent);
     const y = Math.sin(2 * Math.PI * percent);
@@ -113,8 +168,6 @@ export default function Ruleta() {
   const makeSlicePath = (percent, index, total) => {
     const startPercent = index / total;
     const endPercent = (index + 1) / total;
-
-    // Ajustamos -0.25 para empezar arriba (12 en punto)
     const [startX, startY] = getCoordinatesForPercent(startPercent - 0.25);
     const [endX, endY] = getCoordinatesForPercent(endPercent - 0.25);
 
@@ -126,28 +179,38 @@ export default function Ruleta() {
     return `M 0 0 L ${startX} ${startY} A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY} L 0 0`;
   };
 
+  // Funciones de control UI
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
+
+  const toggleLang = () => {
+    setLang(prev => prev === 'es' ? 'en' : 'es');
+  };
+
   return (
-    <div className="ruleta-container">
+    <div className="ruleta-container" data-theme={theme}>
       
       {/* --- SECCIÓN IZQUIERDA: RULETA --- */}
       <div className="wheel-section">
         
         {winner && !isSpinning && (
           <div className="winner-display">
-            <span>🎉 {winner} 🎉</span>
+            <span>{t.winnerTitle} {winner}</span>
             <button 
               className="hide-winner-btn" 
               onClick={hideCurrentWinner}
-              title="Ocultar de la ruleta temporalmente"
+              title={t.hideWinnerTitle}
+              style={{ whiteSpace: 'pre-line' }}
             >
-              Ocultar <br/> elemento
+              {t.hideItem}
             </button>
             <button
               className='close-winner-btn'
               onClick={closeWinner}
-              title='Cerrar popup ganador'
+              title={t.closeWinnerTitle}
             >
-              Cerrar
+              {t.close}
             </button>
           </div>
         )}
@@ -159,7 +222,6 @@ export default function Ruleta() {
             className="wheel"
             style={{ transform: `rotate(${rotation}deg)` }}
           >
-            {/* NUEVO: FONDO SVG */}
             <svg viewBox="-1 -1 2 2" className="wheel-svg">
               {activeItems.map((_, index) => (
                 <path
@@ -170,7 +232,6 @@ export default function Ruleta() {
               ))}
             </svg>
 
-            {/* TEXTOS */}
             {activeItems.map((item, index) => {
               const angle = (360 / activeItems.length);
               const itemRotation = angle * index + (angle / 2);
@@ -193,7 +254,7 @@ export default function Ruleta() {
 
         {hasHiddenItems && !isSpinning && (
           <button className="reset-btn" onClick={unhideAll}>
-            🔄 Reactivar ocultos ({items.filter(i => !i.enabled).length})
+            {t.resetBtn} ({items.filter(i => !i.enabled).length})
           </button>
         )}
 
@@ -201,14 +262,14 @@ export default function Ruleta() {
 
       {/* --- SECCIÓN DERECHA: PANEL --- */}
       <div className="sidebar">
-        <h2 className="controls-title">Opciones</h2>
+        <h2 className="controls-title">{t.optionsTitle}</h2>
         
         <form onSubmit={addItem} className="input-group">
           <input
             type="text"
             value={newItem}
             onChange={(e) => setNewItem(e.target.value)}
-            placeholder="Nueva opción..."
+            placeholder={t.placeholder}
             maxLength={30}
           />
           <button type="submit" className="add-btn">+</button>
@@ -220,23 +281,42 @@ export default function Ruleta() {
               key={index} 
               className={`list-item ${!item.enabled ? 'disabled' : ''}`}
               onClick={() => toggleItem(index)}
-              title="Clic para activar/desactivar"
+              title={t.toggleTitle}
             >
               <span className="item-text">{item.text}</span>
               <button 
                 onClick={(e) => deleteItem(e, index)} 
                 className="delete-btn"
-                title="Eliminar definitivamente"
+                title={t.deleteTitle}
               >
-                Eliminar
+                {t.deleteBtn}
               </button>
             </li>
           ))}
         </ul>
         
         <div className="limit-msg">
-          {activeItems.length} activos / {items.length} total
+          {activeItems.length} {t.limitMsg} {items.length}
         </div>
+      </div>
+
+      {/* --- CONTROLES FLOTANTES (TEMA + IDIOMA) --- */}
+      <div className="floating-controls">
+        <button 
+          className="control-btn theme-btn" 
+          onClick={toggleTheme}
+          title={theme === 'dark' ? t.themeLabelDark : t.themeLabelLight}
+        >
+          {theme === 'dark' ? '☀️' : '🌙'}
+        </button>
+
+        <button 
+          className="control-btn lang-btn" 
+          onClick={toggleLang}
+          title={t.langLabel}
+        >
+          {lang === 'es' ? 'ES' : 'EN'}
+        </button>
       </div>
 
     </div>
