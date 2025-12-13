@@ -17,7 +17,7 @@ const DEFAULT_ITEMS = [
 // Diccionario de traducciones
 const TRANSLATIONS = {
   es: {
-    winnerTitle: "🎉 ¡Ganador!",
+    winnerTitle: "🎉",
     hideItem: "Ocultar \n elemento",
     close: "Cerrar",
     spinAlert: "Necesitas al menos 2 elementos activos para girar.",
@@ -35,11 +35,11 @@ const TRANSLATIONS = {
     langLabel: "Cambiar idioma"
   },
   en: {
-    winnerTitle: "🎉 Winner!",
+    winnerTitle: "🎉",
     hideItem: "Hide \n element",
     close: "Close",
     spinAlert: "You need at least 2 active items to spin.",
-    resetBtn: "🔄 Reactivate hidden",
+    resetBtn: "🔄 Undo changes",
     optionsTitle: "Options",
     placeholder: "New option...",
     deleteBtn: "Delete",
